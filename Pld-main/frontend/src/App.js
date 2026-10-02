@@ -1,5 +1,5 @@
 import "@/App.css";
-import { BrowserRouter, Routes, Route, useLocation, Outlet } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
 import { Navbar } from "./components/Navbar";
 import { Footer } from "./components/Footer";
 import { WhatsAppButton } from "./components/WhatsAppButton";
@@ -14,7 +14,6 @@ import About from "./pages/About";
 import Contact from "./pages/Contact";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
-import AuthCallback from "./pages/AuthCallback";
 
 function MarketingLayout() {
   return (
@@ -30,11 +29,6 @@ function MarketingLayout() {
 }
 
 function AppRouter() {
-  const location = useLocation();
-  // Process OAuth callback FIRST (synchronous, prevents race conditions)
-  if (location.hash?.includes("session_id=")) {
-    return <AuthCallback />;
-  }
   return (
     <Routes>
       <Route element={<MarketingLayout />}>

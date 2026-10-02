@@ -12,8 +12,8 @@ export const brochureUrl = (slug) => `${API}/projects/${slug}/brochure`;
 export const submitEnquiry = async (payload) => (await api.post("/enquiries", payload)).data;
 
 // ---- Auth ----
-export const processSession = async (sessionId) =>
-  (await api.post("/auth/session", {}, { headers: { "X-Session-ID": sessionId } })).data;
+export const login = async (email, password) =>
+  (await api.post("/auth/login", { email, password })).data;
 export const getMe = async () => (await api.get("/auth/me")).data;
 export const logout = async () => (await api.post("/auth/logout")).data;
 

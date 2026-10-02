@@ -6,11 +6,14 @@ import os
 import logging
 import re
 import uuid
-import requests
 from pathlib import Path
 from pydantic import BaseModel, Field, ConfigDict
 from typing import List, Optional
 from datetime import datetime, timezone, timedelta
+import hmac
+import secrets
+
+from bson import Binary
 
 from seed_projects import SEED_PROJECTS
 
@@ -28,39 +31,9 @@ api_router = APIRouter(prefix="/api")
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-# ----------------------- Object Storage (PDF brochures) -----------------------
-STORAGE_URL = "https://integrations.emergentagent.com/objstore/api/v1/storage"
-EMERGENT_KEY = os.environ.get("EMERGENT_LLM_KEY")
-APP_NAME = "pandurang-land"
-_storage_key = None
-
-
-def init_storage():
-    global _storage_key
-    if _storage_key:
-        return _storage_key
-    resp = requests.post(f"{STORAGE_URL}/init", json={"emergent_key": EMERGENT_KEY}, timeout=30)
-    resp.raise_for_status()
-    _storage_key = resp.json()["storage_key"]
-    return _storage_key
-
-
-def put_object(path: str, data: bytes, content_type: str) -> dict:
-    key = init_storage()
-    resp = requests.put(
-        f"{STORAGE_URL}/objects/{path}",
-        headers={"X-Storage-Key": key, "Content-Type": content_type},
-        data=data, timeout=120,
-    )
-    resp.raise_for_status()
-    return resp.json()
-
-
-def get_object(path: str):
-    key = init_storage()
-    resp = requests.get(f"{STORAGE_URL}/objects/{path}", headers={"X-Storage-Key": key}, timeout=60)
-    resp.raise_for_status()
-    return resp.content, resp.headers.get("Content-Type", "application/octet-stream")
+# ----------------------- Admin credentials -----------------------
+ADMIN_EMAIL = os.environ.get("ADMIN_EMAIL", "").strip().lower()
+ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "")
 
 
 # ----------------------- Models -----------------------
@@ -164,38 +137,34 @@ async def require_admin(user: Optional[User] = Depends(get_current_user)) -> Use
 
 
 # ----------------------- Auth Routes -----------------------
-@api_router.post("/auth/session")
-async def process_session(response: Response, x_session_id: str = Header(None)):
-    if not x_session_id:
-        raise HTTPException(status_code=400, detail="Missing session id")
-    r = requests.get(
-        "https://demobackend.emergentagent.com/auth/v1/env/oauth/session-data",
-        headers={"X-Session-ID": x_session_id}, timeout=30,
-    )
-    if r.status_code != 200:
-        raise HTTPException(status_code=401, detail="Invalid session")
-    data = r.json()
-    email = data["email"]
+class LoginIn(BaseModel):
+    email: str
+    password: str
 
-    existing = await db.users.find_one({"email": email}, {"_id": 0})
-    admin_count = await db.users.count_documents({"is_admin": True})
+
+@api_router.post("/auth/login")
+async def login(payload: LoginIn, response: Response):
+    if not ADMIN_EMAIL or not ADMIN_PASSWORD:
+        raise HTTPException(status_code=503, detail="Admin login is not configured")
+    email_ok = hmac.compare_digest(payload.email.strip().lower().encode(), ADMIN_EMAIL.encode())
+    password_ok = hmac.compare_digest(payload.password.encode(), ADMIN_PASSWORD.encode())
+    if not (email_ok and password_ok):
+        raise HTTPException(status_code=401, detail="Invalid email or password")
+
+    existing = await db.users.find_one({"email": ADMIN_EMAIL}, {"_id": 0})
     if existing:
         user_id = existing["user_id"]
-        is_admin = existing.get("is_admin", False) or admin_count == 0
-        await db.users.update_one(
-            {"user_id": user_id},
-            {"$set": {"name": data.get("name", ""), "picture": data.get("picture", ""), "is_admin": is_admin}},
-        )
+        name = existing.get("name", "")
+        await db.users.update_one({"user_id": user_id}, {"$set": {"is_admin": True}})
     else:
         user_id = f"user_{uuid.uuid4().hex[:12]}"
-        is_admin = admin_count == 0  # first user becomes admin
+        name = "Admin"
         await db.users.insert_one({
-            "user_id": user_id, "email": email, "name": data.get("name", ""),
-            "picture": data.get("picture", ""), "is_admin": is_admin,
-            "created_at": datetime.now(timezone.utc).isoformat(),
+            "user_id": user_id, "email": ADMIN_EMAIL, "name": name, "picture": "",
+            "is_admin": True, "created_at": datetime.now(timezone.utc).isoformat(),
         })
 
-    session_token = data["session_token"]
+    session_token = secrets.token_urlsafe(32)
     expires_at = datetime.now(timezone.utc) + timedelta(days=7)
     await db.user_sessions.insert_one({
         "user_id": user_id, "session_token": session_token,
@@ -205,8 +174,7 @@ async def process_session(response: Response, x_session_id: str = Header(None)):
         key="session_token", value=session_token, httponly=True, secure=True,
         samesite="none", path="/", max_age=7 * 24 * 60 * 60,
     )
-    return {"user_id": user_id, "email": email, "name": data.get("name", ""),
-            "picture": data.get("picture", ""), "is_admin": is_admin}
+    return {"user_id": user_id, "email": ADMIN_EMAIL, "name": name, "picture": "", "is_admin": True}
 
 
 @api_router.get("/auth/me")
@@ -247,7 +215,10 @@ async def download_brochure(slug: str):
     doc = await db.projects.find_one({"slug": slug}, {"_id": 0})
     if not doc or not doc.get("brochure_path"):
         raise HTTPException(status_code=404, detail="Brochure not available")
-    data, content_type = get_object(doc["brochure_path"])
+    blob = await db.brochures.find_one({"path": doc["brochure_path"]}, {"_id": 0, "data": 1})
+    if not blob:
+        raise HTTPException(status_code=404, detail="Brochure not available")
+    data = bytes(blob["data"])
     filename = doc.get("brochure_name") or f"{doc['nameEn'] or slug}.pdf"
     return Response(
         content=data, media_type="application/pdf",
@@ -299,8 +270,11 @@ async def upload_brochure(id: str, file: UploadFile = File(...), admin: User = D
     data = await file.read()
     if len(data) > 15 * 1024 * 1024:
         raise HTTPException(status_code=422, detail="File too large (max 15MB)")
-    path = f"{APP_NAME}/brochures/{id}/{uuid.uuid4().hex}.pdf"
-    put_object(path, data, "application/pdf")
+    path = f"brochures/{id}/{uuid.uuid4().hex}.pdf"
+    await db.brochures.insert_one({"path": path, "project_id": id, "data": Binary(data),
+                                   "created_at": datetime.now(timezone.utc).isoformat()})
+    if doc.get("brochure_path"):
+        await db.brochures.delete_one({"path": doc["brochure_path"]})
     await db.projects.update_one(
         {"id": id}, {"$set": {"brochure_path": path, "brochure_name": file.filename}}
     )
@@ -339,6 +313,11 @@ async def root():
     return {"message": "Pandurang Land Developers API is running"}
 
 
+@app.get("/healthz")
+async def healthz():
+    return {"ok": True}
+
+
 app.include_router(api_router)
 
 app.add_middleware(
@@ -361,11 +340,6 @@ async def seed_data():
                               gallery=p["gallery"], features=p["features"])
             await db.projects.insert_one(project.model_dump())
         logger.info(f"Seeded {len(SEED_PROJECTS)} projects")
-    try:
-        init_storage()
-        logger.info("Object storage initialized")
-    except Exception as e:
-        logger.error(f"Storage init failed: {e}")
 
 
 @app.on_event("shutdown")
