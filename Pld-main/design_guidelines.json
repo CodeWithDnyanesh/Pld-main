@@ -1,0 +1,110 @@
+{
+  "theme": "Light",
+  "design_philosophy": "Awwwards-level minimal & editorial design for a luxury real estate land developer. Focus on spaciousness, high-quality visuals, trust-building via typography, and smooth kinetic motion to elevate the plotting experience.",
+  "typography": {
+    "heading_font": "Tiro Devanagari Marathi",
+    "body_font": "Outfit",
+    "pairing_strategy": "Tiro Devanagari provides an elegant, rooted, and trustworthy feel for Devanagari and English headings. Outfit offers high geometric legibility for body text, numbers, and badges.",
+    "hierarchy": {
+      "h1": "text-5xl sm:text-6xl tracking-tighter leading-none font-medium",
+      "h2": "text-3xl sm:text-4xl lg:text-5xl tracking-tight leading-tight",
+      "h3": "text-2xl sm:text-3xl",
+      "body": "text-base leading-relaxed",
+      "labels": "text-xs tracking-[0.2em] uppercase font-bold"
+    }
+  },
+  "colors": {
+    "archetype": "Organic & Earthy",
+    "primary": "#EAB308",
+    "primary_foreground": "#000000",
+    "secondary": "#2F4F4F",
+    "background": "#FAFAFA",
+    "surface": "#FFFFFF",
+    "text_primary": "#0A0A0A",
+    "text_secondary": "#4B5563",
+    "accent_badges": {
+      "na_plot": "#16A34A",
+      "loan": "#2563EB"
+    }
+  },
+  "layout": {
+    "spacing_scale": "Generous spacing. Use p-8 to p-24 for section padding.",
+    "grid_system": "Bento grids for projects and asymmetrical split-panels for detail pages.",
+    "container": "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
+  },
+  "visual_enhancers": {
+    "surfaces": "Glassmorphism for floating headers (bg-white/80 backdrop-blur-xl). Minimal borders (border-black/5). DO NOT use fully transparent headers.",
+    "shadows": "Diffuse ambient shadows for cards. No harsh drops.",
+    "decorations": "Subtle grain textures, noise overlays. Slow-moving marquees for project USPs."
+  },
+  "motion": {
+    "scroll": "lenis smooth scrolling is MANDATORY.",
+    "reveals": "Framer motion line-by-line text reveals on load.",
+    "interactions": "Hover states on project cards: scale image up slightly (scale-105) and reveal extra detail overlay.",
+    "micro": "Magnetic buttons for primary CTAs."
+  },
+  "components": {
+    "hero": "Kinetic hero with aerial plot image. Dark overlay bg-black/30. Line-by-line reveal of main tagline. Primary CTA.",
+    "navbar": "Glassmorphism yellow-tab (or yellow accented) navbar. Links: Home, Projects, About us, Contact us. Sticky top with z-50.",
+    "projects_grid": "10 Township Projects. Asymmetrical grid (md:grid-cols-2 lg:grid-cols-3). Image top, Marathi title, subtle hover effects.",
+    "project_detail": "Split-panel: Sticky left gallery/images, right scrollable content. Badges: 'फक्त 649/- SQ.FT पासून चालू', 'N.A PLOT', 'प्लॉट घेणेस कर्ज उपलब्ध'. Features list, Map, Download Brochure button.",
+    "contact": "Office address, phone, Google Maps embed. Inquiry form capturing name, phone, email, project, message.",
+    "floating_whatsapp": "Fixed bottom-right green WhatsApp button with 'I need help?' tooltip.",
+    "marquee": "Slow editorial marquee outlining 'Why Choose Us / Our Manifesto'."
+  },
+  "image_urls": {
+    "hero_aerial": {
+      "url": "https://images.unsplash.com/photo-1776149421497-7f8be85cb885?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1ODh8MHwxfHNlYXJjaHwxfHxhZXJpYWwlMjB2aWV3JTIwZ3JlZW4lMjB0b3duc2hpcCUyMGxhbmQlMjBwbG90c3xlbnwwfHx8fDE3ODQyODk4Njh8MA&ixlib=rb-4.1.0&q=85",
+      "description": "Aerial view of green township plots"
+    },
+    "projects": [
+      {
+        "url": "https://images.unsplash.com/photo-1775112077888-8fa36e9bbc51?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzNDR8MHwxfHNlYXJjaHwxfHxnYXRlZCUyMGNvbW11bml0eSUyMGVudHJhbmNlJTIwcmVhbCUyMGVzdGF0ZXxlbnwwfHx8fDE3ODQyODk4Njh8MA&ixlib=rb-4.1.0&q=85",
+        "description": "Gated Community Entrance"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1587966783152-ca9cda6b3052?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1MDZ8MHwxfHNlYXJjaHwyfHxsdXh1cnklMjByZXNpZGVudGlhbCUyMGxheW91dCUyMHBsb3R8ZW58MHx8fHwxNzg0Mjg5ODkyfDA&ixlib=rb-4.1.0&q=85",
+        "description": "Green grass field plot layout"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1729444906899-33329455b172?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1MDZ8MHwxfHNlYXJjaHwzfHxncmVlbiUyMHBhcmslMjBuYXR1cmUlMjBsYW5kc2NhcGV8ZW58MHx8fHwxNzg0Mjg5ODkyfDA&ixlib=rb-4.1.0&q=85",
+        "description": "Green park landscape"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1765181120744-4700543cdce6?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NTZ8MHwxfHNlYXJjaHwxfHxoYXBweSUyMGluZGlhbiUyMGZhbWlseSUyMG5hdHVyZSUyMHBhcmt8ZW58MHx8fHwxNzg0Mjg5ODY4fDA&ixlib=rb-4.1.0&q=85",
+        "description": "Nature park lifestyle"
+      }
+    ],
+    "whatsapp_icon": {
+      "url": "https://images.unsplash.com/photo-1633354931133-27ac1ee5d853?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2OTF8MHwxfHNlYXJjaHwxfHx3aGF0c2FwcCUyMGxvZ298ZW58MHx8fHwxNzg0Mjg5ODg2fDA&ixlib=rb-4.1.0&q=85",
+      "description": "WhatsApp logo 3D"
+    }
+  },
+  "instructions_to_main_agent": [
+    "Build the application using React and Tailwind CSS. Create the UI in JS, not TS.",
+    "Implement 'Pandurang Land Developers' with Marathi and English text support. Use Google Font 'Tiro Devanagari Marathi' for headings. Use 'Outfit' for body text.",
+    "Create these pages/views: Home, Projects, About us, Contact us. Set up routing (e.g. react-router-dom) to navigate.",
+    "Ensure exactly 10 projects are listed with Marathi names: लक्ष्मीनारायण पार्क, व्यंकटेश पार्क, संत बाळूमामा पार्क, सिद्धेश्वर पार्क, मंगलमूर्ती पार्क, ब्राह्मनाथ पार्क, रामचंद्र पार्क, श्री हरी पार्क, श्री राम पार्क, मोरया पार्क.",
+    "Projects Detail Page must include feature bullets in Marathi/English, pricing badge ('फक्त 649/- SQ.FT पासून चालू'), 'N.A PLOT' badge, 'प्लॉट घेणेस कर्ज उपलब्ध' badge, Google maps embed, and download brochure button.",
+    "Add a fixed floating WhatsApp button at the bottom right corner with a tooltip 'I need help?'.",
+    "Inquiry form on the Contact page should have fields: Name, Phone, Email, Project Interested, Message. Add logic to handle submission (can be a mock API call but show success state).",
+    "Use Framer Motion for scroll reveals, text reveals, and micro-interactions.",
+    "Use Lenis for smooth scrolling.",
+    "Ensure responsive design. Follow mobile-first approach.",
+    "Include data-testid attributes on all interactive elements (buttons, inputs, links).",
+    "Use the provided image URLs to populate the hero, project cards, and about sections."
+  ],
+  "UNIVERSAL_GUIDELINES_FOR_MAIN_AGENT": [
+    "You tend to converge toward generic, 'on distribution' outputs. Make creative, distinctive frontends that surprise and delight.",
+    "Don't make generic centered layouts, simplistic gradients, and uniform styling.",
+    "Create depth through layered design elements with z-index hierarchy.",
+    "Use glass-morphism effects with backdrop filters (12-24px blur).",
+    "You MUST NOT apply universal transition. Eg: transition: all. Always add transitions for specific interactive elements like button, input excluding transforms.",
+    "You MUST NOT center align the app container, ie do not add .App { text-align: center; } in the css file.",
+    "Always use modern button styles like pill-shaped, or sharp button with interaction animations & color relevant to the app style.",
+    "NEVER use AI assistant Emoji characters like 🤖🧠💭💡🔮🎯 etc for icons.",
+    "Every interaction needs micro-animations - hover states, transitions, parallax effects, and entrance animations.",
+    "Use 2-3x more spacing than feels comfortable. Cramped designs look cheap.",
+    "Subtle grain textures, noise overlays, custom cursors, selection states, and loading animations: separates good from extraordinary."
+  ]
+}

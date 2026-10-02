@@ -1,0 +1,50 @@
+{
+  "summary": "Full E2E of Iteration 2 (admin + projects storage + Google auth + brochures + phone validation). Backend: 28/28 pytest tests pass across enquiries + projects + auth-gating + brochure upload/download + admin CRUD. Frontend: unauth /admin -> redirect to /admin/login (google-login-btn visible); non-admin session shows 'प्रवेश नाही'; admin session loads admin-dashboard with 10 project cards, tab-projects and tab-enquiries switchable. Add project via dialog -> new project appears in admin grid AND on public /projects. Edit and delete both work. Enquiries tab lists enquiry-row-* with delete-enquiry-*. Logout -> /admin/login. Contact form correctly rejects invalid phone (422, no success shown) and accepts valid 10-digit phone with project dropdown populated from API.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "POST /api/enquiries", "issue": "Returns 200 instead of the more RESTful 201; also carried over from iter 1."},
+      {"endpoint": "GET /api/projects", "issue": "No pagination; to_list(1000) acceptable for MVP volume."},
+      {"endpoint": "POST /api/admin/projects/{id}/brochure", "issue": "content-type validation uses OR (content_type PDF OR filename.pdf); accepts a .pdf filename even if browser sent wrong content-type. Practical, low-risk."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Admin project dialog (Radix)", "issues": ["Console warning: 'Missing Description or aria-describedby for DialogContent' — accessibility warning. Add <DialogDescription> or aria-describedby to DialogContent in AdminDashboard.jsx to silence Radix a11y warning."]},
+      {"screen": "Navbar over Home hero (carried from iter 1)", "issues": ["Low-contrast nav links on the transparent (unscrolled) hero; still cosmetic."]}
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_admin_and_projects.py",
+    "/app/backend/tests/test_enquiries.py",
+    "/app/test_reports/pytest/pytest_results.xml",
+    "/app/test_reports/pytest/pytest_admin.xml"
+  ],
+  "action_items": [
+    "(Optional/minor) Add <DialogDescription> (or aria-describedby) to the AdminDashboard project dialog to remove Radix a11y warning.",
+    "(Optional/minor) Return 201 from POST /api/enquiries and POST /api/admin/projects for RESTful semantics."
+  ],
+  "critical_code_review_comments": [
+    "server.py auth: `get_current_user` correctly checks cookie first then Bearer header, handles str/naive datetimes for expires_at, and excludes _id — good.",
+    "server.py first-login-becomes-admin bootstrap is correct: `admin_count == 0` gate ensures only the very first user gets admin, subsequent users default to non-admin.",
+    "unique_slug uses find_one loop — fine for small dataset but could race on parallel creates; acceptable single-admin app.",
+    "Brochure endpoint checks size <=15MB — good. But it reads full file into memory; acceptable for 15MB max.",
+    "AdminDashboard.jsx uses window.confirm for delete confirmation — functional but a shadcn AlertDialog would be nicer UX.",
+    "Radix DialogContent missing aria-describedby — a11y warning (non-blocking).",
+    "AdminLogin.jsx correctly avoids hardcoded redirect URLs and uses window.location.origin + '/admin'.",
+    "AuthCallback + AuthContext correctly short-circuits /me check when session_id is in URL hash to avoid race."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_admin_and_projects.py (new: 20 tests)",
+    "/app/backend/tests/test_enquiries.py (updated: list-newest-first now uses admin endpoint since public list was removed in iter 2)"
+  ],
+  "success_rate": {"backend": "100% (28/28)", "frontend": "100% of critical flows (public + contact + admin auth-gating + admin CRUD + enquiries tab + logout)"},
+  "test_credentials": "Emergent Google Auth. For automated tests, we minted admin + non-admin session tokens directly via mongosh (per /app/auth_testing.md). Tokens used during this run were: ADMIN_TOKEN=test_admin_session_1784293558184, NONADMIN_TOKEN=test_nonadmin_session_1784293558188 — both DELETED at end of run along with their user records to leave DB clean.",
+  "seed_data_creation": "Two temporary users (admin.test.jan2026@example.com, nonadmin.test.jan2026@example.com) + sessions created via mongosh for auth-gated testing. Several TEST_-prefixed projects and enquiries were created/updated/deleted during runs. All temporary users, sessions, projects and enquiries have been cleaned up (verified via API: 0 leftover TEST_ projects, 0 leftover TEST_ enquiries).",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Backend supervisor is stable. Admin auth is via Bearer token OR httpOnly cookie session_token; use mongosh helper in /app/auth_testing.md. IMPORTANT: clicking the UI logout-btn deletes the session from DB — if you reuse the token afterwards it will be gone; mint a fresh one for post-logout API calls. Non-admin bootstrap requires an admin to already exist in db.users (otherwise the second user would auto-become admin too via the count-based rule — but only during OAuth-based session creation, not mongosh inserts). Public list of enquiries is REMOVED in this iteration; only /api/admin/enquiries exists.",
+  "rca of the issue": "No blocking bugs. Two console warnings only (Radix DialogContent aria-describedby); recommended cosmetic + RESTful status-code polish captured in action items."
+}

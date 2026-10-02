@@ -1,0 +1,156 @@
+@import url("https://fonts.googleapis.com/css2?family=Tiro+Devanagari+Marathi:ital@0;1&family=Outfit:wght@300;400;500;600;700;800&display=swap");
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    --background: 40 30% 98%;
+    --foreground: 0 0% 4%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 4%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 4%;
+    --primary: 45 93% 47%;
+    --primary-foreground: 0 0% 0%;
+    --secondary: 180 25% 24%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 40 15% 94%;
+    --muted-foreground: 0 0% 38%;
+    --accent: 45 93% 47%;
+    --accent-foreground: 0 0% 0%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 30 10% 88%;
+    --input: 30 10% 88%;
+    --ring: 45 93% 47%;
+    --radius: 0.5rem;
+
+    --forest: #1f3a34;
+    --forest-deep: #14251f;
+    --clay: #b04a2f;
+    --sand: #efe9dd;
+    --gold: #eab308;
+}
+
+* {
+    border-color: hsl(var(--border));
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-family: "Outfit", -apple-system, BlinkMacSystemFont, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+}
+
+.font-display {
+    font-family: "Tiro Devanagari Marathi", serif;
+    font-weight: 400;
+}
+
+.font-body {
+    font-family: "Outfit", sans-serif;
+}
+
+::selection {
+    background: var(--gold);
+    color: #000;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 10px;
+}
+::-webkit-scrollbar-track {
+    background: hsl(var(--muted));
+}
+::-webkit-scrollbar-thumb {
+    background: var(--forest);
+    border-radius: 999px;
+}
+
+/* Grain overlay */
+.grain::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    pointer-events: none;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Editorial marquee */
+@keyframes marquee-scroll {
+    from {
+        transform: translateX(0);
+    }
+    to {
+        transform: translateX(-50%);
+    }
+}
+.marquee-track {
+    display: flex;
+    width: max-content;
+    animation: marquee-scroll 28s linear infinite;
+}
+.marquee-track:hover {
+    animation-play-state: paused;
+}
+
+/* Line reveal mask */
+.reveal-line {
+    overflow: hidden;
+    display: block;
+}
+
+/* Underline sweep for nav */
+.nav-underline {
+    position: relative;
+}
+.nav-underline::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -4px;
+    height: 2px;
+    width: 100%;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.nav-underline:hover::after,
+.nav-underline.active::after {
+    transform: scaleX(1);
+}
+
+/* Magnetic / primary button */
+.btn-gold {
+    background: var(--gold);
+    color: #000;
+    transition:
+        transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+        box-shadow 0.3s ease,
+        background-color 0.3s ease;
+}
+.btn-gold:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 30px -10px rgba(234, 179, 8, 0.6);
+}
+
+.text-balance {
+    text-wrap: balance;
+}
+
+.App {
+    min-height: 100vh;
+}
